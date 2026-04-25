@@ -13,14 +13,16 @@ from airflow.hooks.postgres_hook import PostgresHook
 
 default_args = {
     'owner': 'sparkify',
-    'start_date': pendulum.now(),
+    'start_date': datetime(2018, 11, 1),
     'depends_on_past': False,
     'retries': 3,
     'retry_delay': timedelta(minutes=5),
+    'catchup':False,
     'email_on_retry':False
 }
 
 @dag(
+    'Sparkify_project',
     default_args=default_args,
     description='Load and transform data in Redshift with Airflow',
     schedule_interval='@hourly'
