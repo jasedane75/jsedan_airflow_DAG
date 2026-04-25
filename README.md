@@ -31,9 +31,9 @@ La arquitectura se apoya en tres servicios principales:
 
 Para conectar estos servicios, se desarrollaron operadores personalizados en Python que encapsulan la lógica de cada etapa: carga desde S3, inserción en tablas de hechos y dimensiones, y validaciones de calidad.
 
-## Modelo de datos
+## Modelo esquema estrella
 
-Se implementó un modelo de estrella centrado en la tabla de hechos **songplays**, que registra cada vez que un usuario reproduce una canción. Alrededor de esta tabla se encuentran cuatro dimensiones que enriquecen el análisis:
+Se implementa un modelo de estrella centrado en la tabla de hechos **songplays**, que registra cada vez que un usuario reproduce una canción. Alrededor de esta tabla se encuentran cuatro dimensiones que enriquecen el análisis:
 
 - **users**: información de los usuarios de Sparkify.
 - **songs**: detalle de cada canción del catálogo.
@@ -45,11 +45,3 @@ Este diseño permite al equipo de analítica hacer consultas eficientes como cru
 ## Resumen
 
 El proyecto implementa un pipeline ETL completo y automatizado para Sparkify. Los datos pasan de ser archivos JSON dispersos en S3 a estar organizados en un modelo dimensional en Redshift, listos para ser consultados. Airflow garantiza que este proceso se ejecute de forma confiable cada hora, con manejo de errores y validaciones de calidad integradas.
-
-## Conclusiones
-
-- La automatización con Airflow elimina la intervención manual y asegura que los datos estén siempre actualizados para el equipo de analítica.
-- El uso de operadores personalizados hace que el pipeline sea modular y reutilizable. Si Sparkify necesita agregar nuevas fuentes de datos o tablas, basta con crear nuevas tareas sin modificar la lógica existente.
-- Las validaciones de calidad al final del proceso son fundamentales para detectar problemas tempranamente y evitar que datos incompletos lleguen a los reportes de negocio.
-- El modelo de estrella en Redshift ofrece un balance entre simplicidad y rendimiento, permitiendo consultas analíticas rápidas sin necesidad de joins complejos.
-- La combinación de S3, Redshift y Airflow demuestra ser una arquitectura sólida y escalable para pipelines de datos en la nube de AWS.
