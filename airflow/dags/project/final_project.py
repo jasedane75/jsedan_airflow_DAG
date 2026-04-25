@@ -98,10 +98,33 @@ def final_project():
         sql=final_project_sql_statements.time_table_insert
     )
 
+    quality_tests = [
+    {
+        'check_sql': 'SELECT COUNT(1) FROM users',
+        'expected_min': 1,
+        'description': 'Tabla users tiene registros'
+    },
+    {
+        'check_sql': 'SELECT COUNT(1) FROM users WHERE userid IS NULL',
+        'expected_value': 0,
+        'description': 'No hay IDs de usuario nulos'
+    },
+    {
+        'check_sql': 'SELECT COUNT(1) FROM songs',
+        'expected_min': 1,
+        'description': 'Tabla songs tiene registros'
+    },
+    {
+        'check_sql': 'SELECT COUNT(1) FROM songplays',
+        'expected_min': 1,
+        'description': 'Tabla songplays tiene registros'
+    }
+    ]
+
     run_quality_checks = DataQualityOperator(
         task_id='Validaciones_Calidad',
         redshift="redshift",
-        tables=['songplays', 'users', 'songs', 'artists', 'time']
+        tests=quality_tests
     )
 
     end_operator = DummyOperator(task_id='Execution_End')
