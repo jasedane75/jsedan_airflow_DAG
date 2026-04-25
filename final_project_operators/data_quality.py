@@ -8,7 +8,7 @@ class DataQualityOperator(BaseOperator):
 
     @apply_defaults
     def __init__(self,
-                 redshift="",
+                 redshift,
                  tests,
                  *args, **kwargs):
 
@@ -23,10 +23,10 @@ class DataQualityOperator(BaseOperator):
 
         redshift_exec = PostgresHook(postgres_conn_id = self.redshift)    
 
-        for tests in self.tests:
+        for test in self.tests:
             
             self.log.info(f"Ejecutando prueba: {test['check_sql']}")
-            result = redshift.get_first(test['check_sql'])
+            result = redshift_exec.get_first(test['check_sql'])
             
             """Validaciones relacionadas a la integridad y calidad de los datos"""
             
