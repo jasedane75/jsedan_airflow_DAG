@@ -9,12 +9,12 @@ class DataQualityOperator(BaseOperator):
     @apply_defaults
     def __init__(self,
                  redshift="",
-                 tables=[],
+                 tests,
                  *args, **kwargs):
 
         super(DataQualityOperator, self).__init__(*args, **kwargs)
         self.redshift = redshift
-        self.tables = tables
+        self.tests = tests
 
 
     def execute(self, context):
@@ -23,11 +23,24 @@ class DataQualityOperator(BaseOperator):
 
         redshift_exec = PostgresHook(postgres_conn_id = self.redshift)    
 
-        for table in self.tables:
-            registros = redshiftexec.get_records(f'SELECT COUNT(*) FROM {table}') 
+        for tests in self.tests:
+            
+            self.log.info(f"Ejecutando prueba: {test['check_sql']}")
+            result = redshift.get_first(test['check_sql'])
 
-            if len(registros) < 1 or len(registros[0]) < 1 or registros[0][0] == 0:
-                self.log.error( f'Validaciones de calidad fallidas: Tabla "{table}" esta vacía')
-                raise ValueError( f'Validaciones de calidad fallidas: table "{table}" esta vacía')
-            self.log.info(f'Validaciones exitosas en registros de la tabla "{table}" con un total de {registros[0][0]} registros')
+            if result is None or len(result) == 0:
+                raise ValueError(f"Prueba no devolvió resultados: {test['check_sql']}")
 
+            if 'expected_value' in test and result[0] != test['expected_value']:
+                raise ValueError(
+                    f"Prueba falló: {test['check_sql']}. "
+                    f"Esperado {test['expected_value']}, obtenido {result[0]}"
+                )
+
+            if 'expected_min' in test and result[0] < test['expected_min']:
+                raise ValueError(
+                    f"Prueba falló: {test['check_sql']}. "
+                    f"Mínimo esperado {test['expected_min']}, obtenido {result[0]}"
+                )
+
+            self.log.info(f"Prueba exitosa: {test['check_sql']}")
